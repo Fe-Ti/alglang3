@@ -34,10 +34,10 @@ get_fwd_average_latency(const size_t data_size,
     auto end_t = std::chrono::steady_clock::now();
     delete[] data;
     delete[] data1;
-    average_latency +=
-      std::chrono::duration_cast<std::chrono::nanoseconds>(end_t - start_t)
-        .count() /
-      iterations;
+    average_latency
+      += std::chrono::duration_cast<std::chrono::nanoseconds>(end_t - start_t)
+           .count()
+         / iterations;
     return average_latency;
 }
 
@@ -67,10 +67,10 @@ get_rvs_average_latency(const size_t data_size,
     auto end_t = std::chrono::steady_clock::now();
     delete[] data;
     delete[] data1;
-    average_latency +=
-      std::chrono::duration_cast<std::chrono::nanoseconds>(end_t - start_t)
-        .count() /
-      iterations;
+    average_latency
+      += std::chrono::duration_cast<std::chrono::nanoseconds>(end_t - start_t)
+           .count()
+         / iterations;
     return average_latency;
 }
 
@@ -99,10 +99,10 @@ get_rnd_average_latency(const size_t data_size,
     auto end_t = std::chrono::steady_clock::now();
     delete[] data;
     delete[] data1;
-    average_latency +=
-      std::chrono::duration_cast<std::chrono::nanoseconds>(end_t - start_t)
-        .count() /
-      iterations;
+    average_latency
+      += std::chrono::duration_cast<std::chrono::nanoseconds>(end_t - start_t)
+           .count()
+         / iterations;
     return average_latency;
 }
 
@@ -112,7 +112,8 @@ output_percentage(const short int score)
     std::cout << "\033[1A[" << std::setw(3) << score << "% ]" << std::endl;
 }
 
-void measure_fwd_latency(size_t ss)
+void
+measure_fwd_latency(size_t ss)
 {
     std::string str;
     std::cout << "[     ] Measuring forward run latency" << std::endl;
@@ -208,15 +209,18 @@ main()
 
     if(ss_end_val)
         for(uint64_t ss = ss_beg_val; ss <= ss_end_val; ss *= 2) {
-            std::cout << "Should I measure fwd? (0 for not)" << std::endl;
+            std::cout << "Should I measure fwd for " << ss << "? (0 for not)"
+                      << std::endl;
             std::cin >> answer;
             if(answer)
                 measure_fwd_latency(ss);
-            std::cout << "Should I measure rvs? (0 for not)" << std::endl;
+            std::cout << "Should I measure rvs for " << ss << "? (0 for not)"
+                      << std::endl;
             std::cin >> answer;
             if(answer)
                 measure_rvs_latency(ss);
-            std::cout << "Should I measure rnd? (0 for not)" << std::endl;
+            std::cout << "Should I measure rnd for " << ss << "? (0 for not)"
+                      << std::endl;
             std::cin >> answer;
             if(answer)
                 measure_rnd_latency(ss);
