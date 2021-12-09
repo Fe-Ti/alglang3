@@ -37,9 +37,6 @@ template<typename T> class SharedPtr
         if(is_invalid()) // if is invalid, i.e. _cb_prt == nullptr
             return;      // do nothing
         _cb_ptr->dec_ref_cnt();
-        if(!_cb_ptr->is_alive()) { // if is not alive
-            delete _cb_ptr;        // then delete the control block
-        }
     }
 
     SharedPtr& operator=(const SharedPtr& r)
@@ -58,10 +55,24 @@ template<typename T> class SharedPtr
         return *this;
     }
 
-    operator bool() const;
-    auto operator*() const -> T&;
-    auto operator->() const -> T*;
+    operator bool() const
+    {
+        return _cb_ptr->get_raw_ptr() != nullptr;
+    }
 
+    T& operator[](size_t index)
+    {
+        return _cb_ptr->obj_ptr[index];
+    }
+
+    T& operator*()
+    {
+        return *_cb_ptr->obj_ptr;
+    }
+    T* operator->()
+    {
+        return _cb_ptr->get_raw_ptr();
+    }
     T* get() const
     {
         return _cb_ptr->get_raw_ptr();
@@ -69,11 +80,15 @@ template<typename T> class SharedPtr
 
     void reset()
     {
-        delete _cb_ptr->get_raw_ptr();
+        reset(nullptr);
     }
     void reset(T* ptr)
     {
-        ;
+        if(!is_invalid()) {
+            if(_cb_ptr->get_raw_ptr() != ptr)
+                _cb_ptr->dec_ref_ptr();
+            _cb_ptr = SharedPtrControlBlock(ptr);
+        }
     }
 
     void swap(SharedPtr& r)
@@ -97,6 +112,7 @@ template<typename T> class SharedPtrControlBlock
     SharedPtrControlBlock(T* _obj_ptr = nullptr)
     {
         this->_obj_ptr = _obj_ptr;
+        this->ref_cnt = 1;
     }
     ~SharedPtrControlBlock()
     {
@@ -132,3 +148,30 @@ template<typename T> class SharedPtrControlBlock
         return ref_cnt > 0;
     }
 };
+
+
+#include <iostream>
+int
+main()
+{
+    int n = 9;
+    SharedPtr<uint64_t> sp(new uint64_t[n]);
+    for ( int i = 0; i < n; ++i){
+        sp[i] = i;
+    }
+    SharedPtr<uint64_t> sp1 = sp;
+    SharedPtr<uint64_t> sp2 = sp1;
+    SharedPtr<uint64_t> sp3 = sp2;
+    sp.reset(new uint64_t[n]);
+    for ( int i = 0; i < n; ++i){
+        sp[i] = i * 4.023;
+    }
+    for ( int i = 0; i < n; ++i){
+        std::cout << sp[i];
+    }
+    for ( int i = 0; i < n; ++i){
+        std::cout << sp1[i];
+    }
+    return 0;
+}
+
